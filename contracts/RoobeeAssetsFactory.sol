@@ -9,30 +9,29 @@ contract AssetsFactory {
     mapping (address => bool) public auditors;
     mapping(address => mapping(uint256 => bool)) public seenNonces;
 
-    constructor(/*address _auditor*/) public {
-        //auditors[_auditor] = true;
+    constructor(address _auditor) public {
+        auditors[_auditor] = true;         //only for testing mechanic
     }
 
     event AssetIssued(address assetAddress, uint256 assetID);
 
     function issueNewAsset(string memory _name, string memory _symbol, uint256 assetID) public returns(address) {
         RoobeeAsset newAsset = new RoobeeAsset(_name, _symbol);
-        require(!assets[assetID], "assetID allready used");
+        require(assets[assetID] == address(0), "assetID allready used");
         assets[assetID] = address(newAsset);
         emit AssetIssued(address(newAsset), assetID);
         return address(newAsset);
     }
 
-    function increaseAmount(uint256 assetID, uint256 amount, address _to) public {
+    function increaseAmount(uint256 assetID, uint256 amount, address _to, uint256 nonce, bytes memory signature ) public {
+        require(checkApprove(assetID, amount, nonce, signature));
         RoobeeAsset(assets[assetID]).mint(_to, amount);
     }
 
 
-    function checkApprove(uint256 owner, uint256 amount, uint256 nonce, bytes memory signature) public returns (bool) {
-        // This recreates the message hash that was signed on the client.
-        bytes32 hash = keccak256(abi.encodePacked(owner, amount, nonce));
+    function checkApprove(uint256 assetID, uint256 amount, uint256 nonce, bytes memory signature) public returns (bool) {
+        bytes32 hash = keccak256(abi.encodePacked(assetID, amount, nonce));
         bytes32 messageHash = toEthSignedMessageHash(hash);
-        // Verify that the message's signer is the owner of the order
         address signer = recover(messageHash, signature);
         require(!seenNonces[signer][nonce], "nonce allready used");
         seenNonces[signer][nonce] = true;
