@@ -6,21 +6,21 @@ import "./RoobeeAsset.sol";
 contract AssetsFactory {
 
     mapping (uint256 => address) public assets;
-    uint256 private assetsNumber = 0;
     mapping (address => bool) public auditors;
     mapping(address => mapping(uint256 => bool)) public seenNonces;
 
-    constructor(address _auditor) public {
-        auditors[_auditor] = true;
+    constructor(/*address _auditor*/) public {
+        //auditors[_auditor] = true;
     }
 
     event AssetIssued(address assetAddress, uint256 assetID);
 
-    function issueNewAsset(string memory _name, string memory _symbol) public returns(uint256) {
+    function issueNewAsset(string memory _name, string memory _symbol, uint256 assetID) public returns(address) {
         RoobeeAsset newAsset = new RoobeeAsset(_name, _symbol);
-        assetsNumber += 1;
-        assets[assetsNumber] = address(newAsset);
-        emit AssetIssued(address(newAsset), assetsNumber);
+        require(!assets[assetID], "assetID allready used");
+        assets[assetID] = address(newAsset);
+        emit AssetIssued(address(newAsset), assetID);
+        return address(newAsset);
     }
 
     function increaseAmount(uint256 assetID, uint256 amount, address _to) public {
@@ -34,7 +34,7 @@ contract AssetsFactory {
         bytes32 messageHash = toEthSignedMessageHash(hash);
         // Verify that the message's signer is the owner of the order
         address signer = recover(messageHash, signature);
-        require(!seenNonces[signer][nonce]);
+        require(!seenNonces[signer][nonce], "nonce allready used");
         seenNonces[signer][nonce] = true;
         return(auditors[signer]);
     }
