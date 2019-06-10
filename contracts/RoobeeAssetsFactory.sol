@@ -3,14 +3,31 @@ import "./IERC20.sol";
 import "./RoobeeAsset.sol";
 
 
-contract AssetsFactory {
+contract AssetsFactory is Ownable {
 
     mapping (uint256 => address) public assets;
     mapping (address => bool) public auditors;
     mapping(address => mapping(uint256 => bool)) public seenNonces;
 
-    constructor(address _auditor) public {
-        auditors[_auditor] = true;         //only for testing mechanic
+    constructor() public {
+
+    }
+
+    //only for testing mechanic
+    function addAuditor(address _auditor) public onlyOwner {
+        auditors[_auditor] = true;
+    }
+
+    function transferAsset(uint256 assetID, address _to, uint256 _value) onlyOwner public {
+        RoobeeAsset(assets[assetID]).transfer(_to, _value);
+    }
+
+    function transferAssetFrom(uint256 assetID, address _from, address _to, uint256 _value) onlyOwner public {
+        RoobeeAsset(assets[assetID]).transferFrom(_from, _to, _value);
+    }
+
+    function assignAsset(uint256 assetID, address _to, uint256 _value) onlyOwner public {
+        RoobeeAsset(assets[assetID]).assignTo(_to, _value);
     }
 
     event AssetIssued(address assetAddress, uint256 assetID);
