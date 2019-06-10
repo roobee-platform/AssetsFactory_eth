@@ -201,16 +201,6 @@ contract RoobeeAsset is ERC20Burnable, Ownable {
         symbol = _symbol;
     }
 
-    function transfer(address to, uint256 value) public returns (bool) {
-        require(isOwner()||to == owner());
-        return super.transfer(to, value);
-    }
-
-    function transferFrom(address from, address to, uint256 value) public returns (bool) {
-        require(isOwner()||to == owner());
-        return super.transferFrom(from, to, value);
-    }
-
 
     // only for users without external wallets - temporary
     function assignTo(address to, uint256 value)  public returns (bool) {
