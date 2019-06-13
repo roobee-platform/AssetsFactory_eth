@@ -5,7 +5,7 @@ import "./RoobeeAsset.sol";
 
 contract AssetsFactory is Ownable {
 
-    mapping (uint256 => address) public assets;
+    mapping (uint256 => address) private assets;
     mapping (address => bool) public auditors;
     mapping(address => mapping(uint256 => bool)) public seenNonces;
 
@@ -16,6 +16,10 @@ contract AssetsFactory is Ownable {
     //only for testing mechanic
     function addAuditor(address _auditor) public onlyOwner {
         auditors[_auditor] = true;
+    }
+
+    function getAssetsAddress(uint256 assetID) public view returns(address) {
+        return assets[id];
     }
 
     function transferAsset(uint256 assetID, address _to, uint256 _value) onlyOwner public {
@@ -46,12 +50,11 @@ contract AssetsFactory is Ownable {
     }
 
 
-    function checkApprove(uint256 assetID, uint256 amount, uint256 nonce, bytes memory signature) public returns (bool) {
+    function checkApprove(uint256 assetID, uint256 amount, uint256 nonce, bytes memory signature) public view returns (bool) {
         bytes32 hash = keccak256(abi.encodePacked(assetID, amount, nonce));
         bytes32 messageHash = toEthSignedMessageHash(hash);
         address signer = recover(messageHash, signature);
         require(!seenNonces[signer][nonce], "nonce allready used");
-        seenNonces[signer][nonce] = true;
         return(auditors[signer]);
     }
 
