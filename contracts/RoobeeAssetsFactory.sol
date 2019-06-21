@@ -36,7 +36,7 @@ contract AssetsFactory is Ownable {
 
     event AssetIssued(address assetAddress, uint256 assetID);
 
-    function issueNewAsset(string memory _name, string memory _symbol, uint256 assetID) public returns(address) {
+    function issueNewAsset(string memory _name, string memory _symbol, uint256 assetID) onlyOwner public returns(address) {
         RoobeeAsset newAsset = new RoobeeAsset(_name, _symbol);
         require(assets[assetID] == address(0), "assetID allready used");
         assets[assetID] = address(newAsset);
@@ -44,7 +44,7 @@ contract AssetsFactory is Ownable {
         return address(newAsset);
     }
 
-    function increaseAmount(uint256 assetID, uint256 amount, address _to, uint256 nonce, bytes memory signature ) public {
+    function increaseAmount(uint256 assetID, uint256 amount, address _to, uint256 nonce, bytes memory signature ) onlyOwner public {
         require(checkApprove(assetID, amount, nonce, signature));
         RoobeeAsset(assets[assetID]).mint(_to, amount);
     }
