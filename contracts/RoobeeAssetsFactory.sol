@@ -1,5 +1,4 @@
 pragma solidity ^0.5.0;
-import "./IERC20.sol";
 import "./RoobeeAsset.sol";
 
 
@@ -19,7 +18,7 @@ contract AssetsFactory is Ownable {
     }
 
     function getAssetsAddress(uint256 assetID) public view returns(address) {
-        return assets[id];
+        return assets[assetID];
     }
 
     function transferAsset(uint256 assetID, address _to, uint256 _value) onlyOwner public {
