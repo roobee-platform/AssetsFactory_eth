@@ -55,6 +55,11 @@ contract ERC20  {
         emit Transfer(from, to, value);
     }
 
+    function _transferFrom(address from, address to, uint256 value) internal {
+        _transfer(from, to, value);
+        _approve(from, msg.sender, _allowed[from][msg.sender].sub(value));
+    }
+
     /**
      * @dev Internal function that mints an amount of the token and assigns it to
      * an account. This encapsulates the modification of balances such that the
@@ -125,25 +130,21 @@ contract RoobeeAsset is ERC20, Ownable {
     }
 
     function thisAssignTo(address to, uint256 value) onlyOwner public returns(bool) {
-        _approve(to, address(this), value);
+        _approve(to, owner(), value);
         _transfer(address(this), to, value);
         return true;
     }
-
-    function thisTransfer(address to, uint256 value) onlyOwner public returns(bool) {
-        _transfer(address(this), to, value);
+    /**
+        function thisTransfer(address to, uint256 value) onlyOwner public returns(bool) {
+            _transfer(address(this), to, value);
+            return true;
+        }
+    */
+    function redeem(address from, uint256 value) onlyOwner public returns(bool) {
+        _transferFrom(from, address(this), value);
         return true;
     }
 
-    function thisTransferFrom(address from, address to, uint256 value) onlyOwner public returns(bool) {
-        _transfer(from, to, value);
-        return true;
-    }
-
-    function redeem(uint256 value) public returns(bool) {
-        _transfer(msg.sender, address(this), value);
-        return true;
-    }
 
     function mint(uint value) onlyOwner public returns(bool) {
         _mint(address(this), value);
@@ -151,12 +152,12 @@ contract RoobeeAsset is ERC20, Ownable {
     }
 
 
-    function thisBurn(uint256 value) public returns (bool) {
+    function thisBurn(uint256 value) onlyOwner public returns (bool) {
         _burn(address(this), value);
         return true;
     }
 
-    function thisBurnFrom(address from, uint256 value) public returns(bool) {
+    function thisBurnFrom(address from, uint256 value) onlyOwner public returns(bool) {
         _burnFrom(from, value);
         return true;
     }

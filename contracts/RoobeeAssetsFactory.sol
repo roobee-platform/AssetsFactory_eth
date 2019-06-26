@@ -20,32 +20,39 @@ contract AssetsFactory is Ownable {
     function getAssetsAddress(uint256 assetID) public view returns(address) {
         return assets[assetID];
     }
-
-    function transferAsset(uint256 assetID, address _to, uint256 _value) onlyOwner public {
-        RoobeeAsset(assets[assetID]).transfer(_to, _value);
-    }
-
-    function transferAssetFrom(uint256 assetID, address _from, address _to, uint256 _value) onlyOwner public {
-        RoobeeAsset(assets[assetID]).transferFrom(_from, _to, _value);
+    /**
+        function transferAsset(uint256 assetID, address _to, uint256 _value) onlyOwner public {
+            require(RoobeeAsset(assets[assetID]).thisTransfer(_to, _value));
+        }
+    */
+    function redeemAssetFrom(uint256 assetID, address _from, uint256 _value) onlyOwner public {
+        require(RoobeeAsset(assets[assetID]).redeem(_from, _value));
     }
 
     function assignAsset(uint256 assetID, address _to, uint256 _value) onlyOwner public {
-        RoobeeAsset(assets[assetID]).assignTo(_to, _value);
+        require(RoobeeAsset(assets[assetID]).thisAssignTo(_to, _value));
+    }
+
+    function burnAsset(uint256 assetID, uint256 _value) onlyOwner public {
+        require(RoobeeAsset(assets[assetID]).thisBurn( _value));
+    }
+
+    function burnAssetFrom(uint256 assetID,address _from ,uint256 _value) onlyOwner public {
+        require(RoobeeAsset(assets[assetID]).thisBurnFrom(_from,_value));
     }
 
     event AssetIssued(address assetAddress, uint256 assetID);
 
-    function issueNewAsset(string memory _name, string memory _symbol, uint256 assetID) onlyOwner public returns(address) {
+    function issueNewAsset(string memory _name, string memory _symbol, uint256 assetID) onlyOwner public  {
         RoobeeAsset newAsset = new RoobeeAsset(_name, _symbol);
         require(assets[assetID] == address(0), "assetID allready used");
         assets[assetID] = address(newAsset);
         emit AssetIssued(address(newAsset), assetID);
-        return address(newAsset);
     }
 
-    function increaseAmount(uint256 assetID, uint256 amount, address _to, uint256 nonce, bytes memory signature ) onlyOwner public {
+    function increaseAmount(uint256 assetID, uint256 amount, uint256 nonce, bytes memory signature) onlyOwner public {
         require(checkApprove(assetID, amount, nonce, signature));
-        RoobeeAsset(assets[assetID]).mint(_to, amount);
+        require(RoobeeAsset(assets[assetID]).mint(amount));
     }
 
 
