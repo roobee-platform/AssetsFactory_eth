@@ -7,6 +7,6 @@ async function f1(assetID, amount, nonce) {
     var signature = await web3.eth.sign(hash, "0x07E691eceaFD6F6571BA296C69A775C186C274b7");
     console.log(signature); // 10
 }
-f1('1','2', '3')
+f1('1','100', '1')
 
 

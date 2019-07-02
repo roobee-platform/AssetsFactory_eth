@@ -51,17 +51,18 @@ contract AssetsFactory is Ownable {
     }
 
     function increaseAmount(uint256 assetID, uint256 amount, uint256 nonce, bytes memory signature) onlyOwner public {
-        require(checkApprove(assetID, amount, nonce, signature));
+        checkApprove(assetID, amount, nonce, signature);
         require(RoobeeAsset(assets[assetID]).mint(amount));
     }
 
 
-    function checkApprove(uint256 assetID, uint256 amount, uint256 nonce, bytes memory signature) public view returns (bool) {
+    function checkApprove(uint256 assetID, uint256 amount, uint256 nonce, bytes memory signature) internal  {
         bytes32 hash = keccak256(abi.encodePacked(assetID, amount, nonce));
         bytes32 messageHash = toEthSignedMessageHash(hash);
         address signer = recover(messageHash, signature);
         require(!seenNonces[signer][nonce], "nonce allready used");
-        return(auditors[signer]);
+        seenNonces[signer][nonce] = true;
+        require(auditors[signer], "nonAuditors signature");
     }
 
 
