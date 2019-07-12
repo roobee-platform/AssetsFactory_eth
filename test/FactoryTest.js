@@ -59,7 +59,7 @@ contract("AssetsFactoryTest", async accounts => {
             let factory = await AssetsFactory.deployed();
             var assetID = 1;
             var amount = 100;
-            var nonce = 2;
+            var nonce = 3;
             var hash = web3.utils.soliditySha3(assetID,amount,nonce);
             var signature = await web3.eth.sign(hash, accounts[0]);
             await truffleAssert.reverts(factory.increaseAmount(assetID, amount, nonce,signature), "nonAuditors signature");
@@ -139,6 +139,4 @@ contract("AssetsFactoryTest", async accounts => {
             await  truffleAssert.reverts(asset.mint(amount));
         }
     )
-
-
 });

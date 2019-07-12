@@ -6,7 +6,7 @@ contract AssetsFactory is Ownable {
 
     mapping (uint256 => address) private assets;
     mapping (address => bool) public auditors;
-    mapping(address => mapping(uint256 => bool)) public seenNonces;
+    mapping(address => uint256) public seenNonces;
 
     constructor() public {
 
@@ -60,8 +60,8 @@ contract AssetsFactory is Ownable {
         bytes32 hash = keccak256(abi.encodePacked(assetID, amount, nonce));
         bytes32 messageHash = toEthSignedMessageHash(hash);
         address signer = recover(messageHash, signature);
-        require(!seenNonces[signer][nonce], "nonce allready used");
-        seenNonces[signer][nonce] = true;
+        require(seenNonces[signer] < nonce, "nonce allready used");
+        seenNonces[signer] = nonce;
         require(auditors[signer], "nonAuditors signature");
     }
 
