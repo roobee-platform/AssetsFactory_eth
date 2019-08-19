@@ -84,8 +84,30 @@ contract("AssetsFactoryTest", async accounts => {
             console.log(1);
             let accountsBalance = await asset.balanceOf.call(accounts[1]);
             assert.equal(amount, accountsBalance);
+            let allowance = await asset.allowance(accounts[1], factory.address);
+            console.log(allowance);
+            console.log(accountsBalance);
+            assert.equal(allowance, accountsBalance);
         }
     )
+
+    it("should assign tokens to account1 and increase allowance", async () => {
+            let factory = await AssetsFactory.deployed();
+            var assetID = 1;
+            var amount = 10;
+            let AssetAddress = await factory.getAssetsAddress.call(1);
+            let asset = await RoobeeAsset.at(AssetAddress);
+            await factory.assignAsset(assetID, accounts[1], amount);
+            console.log(1);
+            let accountsBalance = await asset.balanceOf.call(accounts[1]);
+            let allowance = await asset.allowance(accounts[1], factory.address);
+            console.log(allowance);
+            console.log(accountsBalance);
+            assert.equal(allowance, accountsBalance);
+        }
+    )
+
+
 
     it("should redeem account1's tokens", async () => {
             let factory = await AssetsFactory.deployed();

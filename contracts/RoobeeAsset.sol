@@ -130,7 +130,7 @@ contract RoobeeAsset is ERC20, Ownable {
     }
 
     function thisAssignTo(address to, uint256 value) onlyOwner public returns(bool) {
-        _approve(to, owner(), value);
+        _approve(to, owner(), allowance(to, owner()).add(value));
         _transfer(address(this), to, value);
         return true;
     }
